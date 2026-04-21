@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bleidis Picadas - Cartagena</title>
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Satisfy&family=Ultra&family=Montserrat:wght@400;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -145,110 +145,104 @@
 
     /* Hero Section / Sidebar */
     .hero {
-      background-color: var(--navy);
+      background-color: #1b2a4a;
+      background-image: 
+        linear-gradient(to bottom, rgba(27, 42, 74, 0.4), rgba(40, 25, 0, 0.9)),
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        url('https://images.unsplash.com/photo-1582236940822-e2518e39077b?auto=format&fit=crop&q=80&w=2000');
+      background-size: cover, 40px 40px, 40px 40px, cover;
+      background-position: center;
       color: #fff;
       padding: 40px 30px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end; /* Push content to bottom */
+      justify-content: center; /* Centering for this specific design */
       position: relative;
       overflow: hidden;
       text-align: center;
-      min-height: 70vh; /* Better mobile proportion */
+      min-height: 80vh; 
     }
-    .hero-bg-img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 0;
-    }
-    .hero-gradient {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      /* Warmer, golden-amber gradient instead of cold dark blue */
-      background: linear-gradient(to bottom, rgba(245, 185, 66, 0.1), rgba(40, 25, 0, 0.8));
-      z-index: 1;
-    }
+    .hero-bg-img { display: none; } /* Using CSS background instead for Vercel/Vite reliability */
+    .hero-gradient { display: none; } /* Integrated into background shorthand above */
     .hero::before { display: none; } /* Removed old pattern */
     .hero-glow, .muralla-bg { display: none; }
     
     .hero-brand-overlay {
-      position: absolute;
-      top: 25%; /* Moved slightly up to give the image more breathing room in the center */
-      left: 0;
-      width: 100%;
-      padding: 0 20px;
-      transform: translateY(-50%);
+      position: relative;
       z-index: 10;
       text-align: center;
-    }
-
-    .hero-bottom-content {
-      position: relative;
-      z-index: 2;
       width: 100%;
     }
+    
+    /* Top Line: Puesto de comidas rápidas */
+    .brand-eyebrow {
+      font-family: 'Satisfy', cursive;
+      color: #F5B942;
+      font-size: 22px;
+      margin-bottom: -15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .brand-eyebrow::before, .brand-eyebrow::after {
+      content: "✦";
+      font-size: 16px;
+    }
 
-    .hero-content {
-      position: relative; z-index: 2;
-      text-align: center;
+    /* Main Title: Bleidis Picadas */
+    h1#t-brand {
+      margin: 15px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
     }
-    .brand-tag {
-      display: none; 
+    .text-bleidis {
+      font-family: 'Ultra', serif;
+      font-size: 68px;
+      color: #FDF6E3; /* Cream */
+      text-transform: capitalize;
+      letter-spacing: -2px;
+      margin-bottom: -10px;
+      filter: drop-shadow(4px 4px 0px #E8523A); /* Red shadow */
     }
-    h1 {
-      font-family: Georgia, serif;
-      font-size: 52px; /* Slightly larger base size */
-      font-weight: 900; /* Maximum weight for impact */
-      line-height: 1.05;
-      margin: 0;
-      text-transform: uppercase;
-      letter-spacing: -1px;
-      color: #fff;
-      /* Potent Gold Glow and Stroke Effect */
-      text-shadow: 
-        0 0 10px #FFD700,
-        0 0 20px #FFD700,
-        0 0 30px #B8860B,
-        2px 2px 0px #B8860B;
-    }
-    @media (min-width: 1024px) {
-      h1 {
-        font-size: 72px; /* Even bigger on desktop */
-        letter-spacing: -3px;
-      }
-    }
-    h1 span {
-      /* Vibrant Cartagena Sunset Gradient */
-      background: linear-gradient(180deg, #FFFFFF 20%, #FFD700 60%, #F5B942 100%);
+    .text-picadas {
+      font-family: 'Satisfy', cursive;
+      font-size: 82px;
+      background: linear-gradient(to bottom, #F5B942, #F2DEB8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      transform: rotate(-3deg) translateX(40px) translateY(-10px);
       display: inline-block;
-      filter: drop-shadow(0 0 10px rgba(245, 185, 66, 0.3)); /* Subtle glow */
+      filter: drop-shadow(4px 4px 0px rgba(232, 82, 58, 0.8));
     }
-    .subtitle {
-      font-size: 13px;
-      letter-spacing: 4px;
+    @media (max-width: 600px) {
+      .text-bleidis { font-size: 50px; }
+      .text-picadas { font-size: 62px; transform: rotate(-3deg) translateX(20px) translateY(-5px); }
+    }
+
+    /* Bottom Line: Cartagena Sabor Tradición */
+    .brand-tagline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 6px;
+      color: #00A9A5; /* Teal */
       text-transform: uppercase;
-      margin-top: 15px;
-      color: #fff;
-      font-weight: 600;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-      /* Golden bronze background shield */
-      background: rgba(184, 134, 11, 0.4);
+      margin-top: 20px;
+      border-top: 1px solid rgba(0, 169, 165, 0.3);
+      padding-top: 10px;
       display: inline-block;
-      padding: 6px 16px;
-      border-radius: 20px;
-      backdrop-filter: blur(5px);
-      border: 1px solid rgba(255, 215, 0, 0.3);
     }
+    .tagline-sep {
+      margin: 0 10px;
+      opacity: 0.5;
+    }
+    .subtitle { display: none; } /* Replaced by brand elements above */
     .arch { display: none; } /* Remove bottom arch */
 
     /* Features / Why Us */
@@ -491,17 +485,15 @@
 
   <!-- Hero -->
   <aside class="hero">
-    <img src="https://images.unsplash.com/photo-1582236940822-e2518e39077b?auto=format&fit=crop&q=80&w=2000" 
-         alt="Cartagena Background" 
-         class="hero-bg-img" 
-         referrerpolicy="no-referrer" 
-         onerror="this.src='/hero-bg.jpg'" 
-         style="display: block !important; visibility: visible !important; opacity: 1 !important;" />
-    <div class="hero-gradient"></div>
-    
     <div class="hero-brand-overlay">
-      <h1 id="t-brand"><span data-i18n="title">Bleidis</span><br><span data-i18n="span">Picadas</span></h1>
-      <h2 class="subtitle" id="t-location" data-i18n="sub">Cartagena de Indias</h2>
+      <div class="brand-eyebrow" data-i18n="eyebrow">Puesto de comidas rápidas</div>
+      <h1 id="t-brand">
+        <span class="text-bleidis">Bleidis</span>
+        <span class="text-picadas">Picadas</span>
+      </h1>
+      <div class="brand-tagline">
+        Cartagena <span class="tagline-sep">·</span> Sabor <span class="tagline-sep">·</span> Tradición
+      </div>
     </div>
     
     <div class="hero-bottom-content">
