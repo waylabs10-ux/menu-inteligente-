@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bleidis Picadas - Cartagena</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --coral: #E8523A;
+      --turq: #00A9A5;
+      --gold: #F5B942;
+      --cream: #FDF6E3;
+      --navy: #1B2A4A;
+      --sand: #F2DEB8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: var(--cream);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      color: var(--navy);
+      overflow-x: hidden;
+    }
+    
+    /* Layout */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    @media (min-width: 768px) {
+      .app-container {
+        display: grid;
+        grid-template-columns: 280px 1fr; /* Compact sidebar for tablet */
+        height: 100vh;
+        overflow: hidden;
+      }
+      .controls-bar {
+        grid-column: 1 / -1;
+      }
+      .hero {
+        height: calc(100vh - 70px); /* Custom height to match controls-bar */
+        min-height: auto;
+        position: sticky;
+        top: 70px;
+        padding: 30px 20px;
+        overflow-y: auto; /* Allow internal scrolling if tablet is held horizontally (short height) */
+      }
+      .hero::-webkit-scrollbar {
+        width: 4px;
+      }
+      .hero::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.3);
+        border-radius: 4px;
+      }
+      .menu-container {
+        overflow-y: auto;
+        height: calc(100vh - 70px);
+        margin: 0; 
+        padding: 40px;
+        border-left: 1px solid rgba(255, 215, 0, 0.2);
+        background: radial-gradient(circle at top right, #fff, var(--cream));
+      }
+      body { overflow: hidden; } /* Lock body scroll on desktop/tablet */
+    }
+    
+    @media (min-width: 1024px) {
+      .app-container {
+        grid-template-columns: 320px 1fr;
+      }
+      .hero {
+        padding: 40px 30px;
+      }
+      .menu-container {
+        padding: 40px;
+      }
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(27, 42, 74, 0.95);
+      backdrop-filter: blur(10px);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end; /* More space for the menu, controls to the right */
+      gap: 15px;
+      padding: 0 20px;
+      border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    }
+    .control-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      padding: 6px 12px;
+      border-radius: 50px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .control-pill:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+    }
+    .control-pill select {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      padding-right: 5px;
+    }
+    .control-icon {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* Responsive adjustment for controls */
+    @media (max-width: 480px) {
+      .controls-bar {
+        padding: 0 10px;
+        gap: 8px;
+      }
+      .control-pill {
+        padding: 5px 10px;
+      }
+    }
+
+    /* Promobar */
+    .promo {
+      display: none; /* Hide promo bar in this layout to keep things clean */
+    }
+
+    /* Hero Section / Sidebar */
+    .hero {
+      background-color: var(--navy); /* fallback */
+      color: #fff;
+      padding: 40px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end; /* Push content to bottom */
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      min-height: 70vh; /* Better mobile proportion */
+    }
+    .hero-bg-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    .hero-gradient {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Warmer, golden-amber gradient instead of cold dark blue */
+      background: linear-gradient(to bottom, rgba(245, 185, 66, 0.1), rgba(40, 25, 0, 0.8));
+      z-index: 1;
+    }
+    .hero::before { display: none; } /* Removed old pattern */
+    .hero-glow, .muralla-bg { display: none; }
+    
+    .hero-brand-overlay {
+      position: absolute;
+      top: 25%; /* Moved slightly up to give the image more breathing room in the center */
+      left: 0;
+      width: 100%;
+      padding: 0 20px;
+      transform: translateY(-50%);
+      z-index: 10;
+      text-align: center;
+    }
+
+    .hero-bottom-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center;
+    }
+    .brand-tag {
+      display: none; 
+    }
+    h1 {
+      font-family: Georgia, serif;
+      font-size: 52px; /* Slightly larger base size */
+      font-weight: 900; /* Maximum weight for impact */
+      line-height: 1.05;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      color: #fff;
+      /* Potent Gold Glow and Stroke Effect */
+      text-shadow: 
+        0 0 10px #FFD700,
+        0 0 20px #FFD700,
+        0 0 30px #B8860B,
+        2px 2px 0px #B8860B;
+    }
+    @media (min-width: 1024px) {
+      h1 {
+        font-size: 72px; /* Even bigger on desktop */
+        letter-spacing: -3px;
+      }
+    }
+    h1 span {
+      /* Vibrant Cartagena Sunset Gradient */
+      background: linear-gradient(180deg, #FFFFFF 20%, #FFD700 60%, #F5B942 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      filter: drop-shadow(0 0 10px rgba(245, 185, 66, 0.3)); /* Subtle glow */
+    }
+    .subtitle {
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 15px;
+      color: #fff;
+      font-weight: 600;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      /* Golden bronze background shield */
+      background: rgba(184, 134, 11, 0.4);
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    .arch { display: none; } /* Remove bottom arch */
+
+    /* Features / Why Us */
+    .why-us {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 40px;
+      text-align: left;
+      position: relative; z-index: 2;
+    }
+    .why-us h2 { display: none; } /* Hide the title to match editorial sidebar */
+    .features-grid {
+      display: grid;
+      gap: 15px;
+      grid-template-columns: 1fr;
+      margin: 0;
+    }
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 0;
+    }
+    .feature i {
+      width: 38px;
+      height: 38px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--navy);
+      font-size: 18px;
+      margin: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .feature h3 {
+      font-size: 14px;
+      color: #fff;
+      margin: 0;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    .feature p { display: none; } /* Hide descriptions to match layout */
+
+    /* Footer */
+    footer {
+      background: transparent;
+      color: #fff;
+      text-align: left;
+      padding: 20px 0 0;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      font-size: 11px;
+      opacity: 0.9;
+      position: relative; z-index: 2;
+    }
+    .f-brand, .f-icons { display: none; } /* Hide old footer elements */
+    footer p { margin-bottom: 5px; }
+
+    /* Menu Sections */
+    .menu-container {
+      max-width: 100%;
+      padding: 30px 20px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--navy);
+      font-size: 32px;
+      border-bottom: 3px double var(--gold);
+      padding-bottom: 10px;
+      margin: 0 0 30px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: -0.5px;
+    }
+    .section-title::after { display: none; } /* Remove old gradient line */
+    .section-title i { display: none; } /* Remove icons from headings */
+    
+    /* Grid & Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid rgba(184, 134, 11, 0.15);
+      border-radius: 4px; /* More 'paper' editorial feel */
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: auto;
+      box-shadow: 10px 10px 0px rgba(184, 134, 11, 0.05); /* Rigid artistic shadow */
+      overflow: hidden;
+      position: relative;
+      padding: 5px; /* Border spacing */
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--gold), #B8860B, var(--gold));
+      opacity: 0.8;
+    }
+    .card:hover {
+      border-color: var(--gold);
+      transform: translateY(-8px);
+      box-shadow: 15px 15px 0px rgba(184, 134, 11, 0.1);
+      z-index: 5;
+    }
+    .card-body { 
+      padding: 15px; 
+      border: 1px solid rgba(184, 134, 11, 0.05); /* Internal frame */
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+      background: #fff;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+      color: var(--navy);
+    }
+    .card-footer {
+      border-top: 1px dashed rgba(0,0,0,0.1);
+      padding-top: 10px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-price {
+      color: var(--coral);
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 20px;
+      font-style: italic;
+    }
+    .badge {
+      background: var(--turq) !important;
+      color: #fff !important;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: bold;
+      align-self: flex-start;
+    }
+
+    /* WhatsApp Button */
+    .wa-btn {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      background: #25D366;
+      color: #fff;
+      border-radius: 30px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .wa-btn:hover { transform: none; box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+
+    /* Hide unneeded elements in mobile */
+    @media (max-width: 768px) {
+      .controls-bar {
+        height: auto;
+        padding: 15px;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .lang-selector {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      h1 { font-size: 36px; }
+      .wa-btn span { display: inline; } /* Keep text visible in this design */
+      .card { min-height: auto; }
+      .card-footer { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+
+  <!-- Controls -->
+  <div class="controls-bar">
+    <!-- Compact Dynamic Language Selector -->
+    <div class="control-pill">
+      <span class="control-icon" title="Idioma / Language">🌐</span>
+      <select id="language-selector">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+        <option value="it">Italiano</option>
+        <option value="pt">Português</option>
+        <option value="zh">中文</option>
+        <option value="ja">日本語</option>
+      </select>
+    </div>
+
+    <!-- Enhanced Identification Currency Selector -->
+    <div class="control-pill">
+      <span class="control-icon" title="Moneda / Currency">💰</span>
+      <select id="currency-selector">
+        <option value="COP">🇨🇴 COP ($)</option>
+        <option value="USD">🇺🇸 USD ($)</option>
+        <option value="EUR">🇪🇺 EUR (€)</option>
+        <option value="GBP">🇬🇧 GBP (£)</option>
+        <option value="BRL">🇧🇷 BRL (R$)</option>
+        <option value="MXN">🇲🇽 MXN ($)</option>
+        <option value="JPY">🇯🇵 JPY (¥)</option>
+        <option value="CNY">🇨🇳 CNY (¥)</option>
+        <option value="CAD">🇨🇦 CAD ($)</option>
+        <option value="ARS">🇦🇷 ARS ($)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="promo" data-i18n="promo">
+    🌴 Sabor caribeño en cada picada — Cartagena de Indias te da la bienvenida 🌴
+  </div>
+
+  <!-- Hero -->
+  <aside class="hero">
+    <img src="/villegasproducciones-church-7292428.jpg" alt="Cartagena Background" class="hero-bg-img" referrerpolicy="no-referrer" onerror="this.src='https://cdn.pixabay.com/photo/2022/06/30/13/46/cartagena-7292428_1280.jpg'" />
+    <div class="hero-gradient"></div>
+    
+    <div class="hero-brand-overlay">
+      <h1 id="t-brand"><span data-i18n="title">Bleidis</span><br><span data-i18n="span">Picadas</span></h1>
+      <h2 class="subtitle" id="t-location" data-i18n="sub">Cartagena de Indias</h2>
+    </div>
+    
+    <div class="hero-bottom-content">
+      <!-- Why Us Section (moved here for sidebar) -->
+      <div class="why-us">
+        <div class="features-grid">
+          <div class="feature">
+            <i class="fa-solid fa-fire-burner"></i>
+            <h3 data-i18n="w1">Sabor Auténtico</h3>
+          </div>
+          <div class="feature">
+            <i class="fa-solid fa-leaf"></i>
+            <h3 data-i18n="w2">Ingredientes Frescos</h3>
+          </div>
+          <div class="feature">
+            <i class="fa-solid fa-face-smile-beam"></i>
+            <h3 data-i18n="w3">Atención Caribeña</h3>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Footer (moved here for sidebar) -->
+      <footer>
+        <p data-i18n="foot">Cartagena de Indias · Colombia</p>
+        <p data-i18n="taxes">Todos los precios incluyen IVA · Sujeto a disponibilidad</p>
+        <p data-i18n="thanks">¡Bienvenidos y gracias por su preferencia!</p>
+      </footer>
+    </div>
+  </aside>
+
+  <!-- Menu -->
+  <main class="menu-container">
+    
+    <!-- Picadas 10k -->
+    <div class="section-title"><span data-i18n="sec1">Picadas Tradicionales</span> <span class="badge">$10.000 COP</span></div>
+    <div class="grid c-10k">
+      <!-- Item -->
+      <div class="card scroll-anim">
+        <div class="card-body">
+          <h3 class="card-title" data-i18n="item1_n">Orejas de la Casa</h3>
+          <div class="card-footer">
+            <span class="card-price"><span class="curr-sym">$</span><span class="price-val" data-base="10000">10.000</span></span>
+            <span class="badge" data-i18n="badge_fav">⭐ Favorita</span>
+          </div>
+        </div>
+      </div>
+      <!-- Item -->
+      <div class="card scroll-anim">
+        <div class="card-body">
+          <h3 class="card-title" data-i18n="item2_n">Chorizo Santarosano</h3>
+          <div class="card-footer">
+            <span class="card-price"><span class="curr-sym">$</span><span class="price-val" data-base="10000">10.000</span></span>
+            <span class="badge" data-i18n="badge_trad">🌶️ Tradicional</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Picadas 15k -->
+    <div class="section-title"><span data-i18n="sec2">Favoritos de la Casa</span> <span class="badge">$15.000 COP</span></div>
+    <div class="grid c-15k">
+      <!-- Item -->
+      <div class="card scroll-anim">
+        <div class="card-body">
+          <h3 class="card-title" data-i18n="item3_n">Chicharrón con Papas</h3>
+          <div class="card-footer">
+            <span class="card-price"><span class="curr-sym">$</span><span class="price-val" data-base="15000">15.000</span></span>
+            <span class="badge" data-i18n="badge_pop">⭐ Popular</span>
+          </div>
+        </div>
+      </div>
+      <!-- Item -->
+      <div class="card scroll-anim">
+        <div class="card-body">
+          <h3 class="card-title" data-i18n="item4_n">Chuleta de Cerdo</h3>
+          <div class="card-footer">
+            <span class="card-price"><span class="curr-sym">$</span><span class="price-val" data-base="15000">15.000</span></span>
+            <span class="badge" data-i18n="badge_esp">🔥 Especial</span>
+          </div>
+        </div>
+      </div>
+      <!-- Item -->
+      <div class="card scroll-anim">
+        <div class="card-body">
+          <h3 class="card-title" data-i18n="item5_n">Pollo Asado</h3>
+          <div class="card-footer">
+            <span class="card-price"><span class="curr-sym">$</span><span class="price-val" data-base="15000">15.000</span></span>
+            <span class="badge" data-i18n="badge_pop">⭐ Popular</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Picadas 20k -->
+    <div class="section-title"><span data-i18n="sec3">Especialidades Premium</span> <span class="badge">$20.000 COP</span></div>
+    <div class="grid c-20k">
+      <!-- Item -->
+      <div class="card scroll-anim">
+        <div class="card-body">
+          <h3 class="card-title" data-i18n="item6_n">Carne de Res</h3>
+          <div class="card-footer">
+            <span class="card-price"><span class="curr-sym">$</span><span class="price-val" data-base="20000">20.000</span></span>
+            <span class="badge" data-i18n="badge_esp">🔥 Especial</span>
+          </div>
+        </div>
+      </div>
+      <!-- Item -->
+      <div class="card scroll-anim">
+        <div class="card-body">
+          <h3 class="card-title" data-i18n="item7_n">Carne de Cerdo</h3>
+          <div class="card-footer">
+            <span class="card-price"><span class="curr-sym">$</span><span class="price-val" data-base="20000">20.000</span></span>
+            <span class="badge" data-i18n="badge_pop">⭐ Popular</span>
+          </div>
+        </div>
+      </div>
+      <!-- Item -->
+      <div class="card scroll-anim">
+        <div class="card-body">
+          <h3 class="card-title" data-i18n="item8_n">Pierna Pernil Asada</h3>
+          <div class="card-footer">
+            <span class="card-price"><span class="curr-sym">$</span><span class="price-val" data-base="20000">20.000</span></span>
+            <span class="badge" data-i18n="badge_star">🏆 Estrella</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+  <!-- WhatsApp Button -->
+  <a href="https://wa.me/573209717479?text=¡Hola!%20Me%20gustaría%20hacer%20un%20pedido." target="_blank" class="wa-btn" id="wa-link">
+    <i class="fa-brands fa-whatsapp fa-xl"></i>
+    <span data-i18n="wa">Pedir por WhatsApp</span>
+  </a>
+
+  <!-- SCRIPT OBLIGATORIO PURO -->
+  <script>
+    // 1. Translations (Hardcoded)
+    const i18n = {
+      es: {
+        promo: "🌴 Sabor caribeño en cada picada — Cartagena de Indias te da la bienvenida 🌴",
+        tag: "✦ Puesto de Comidas Rápidas ✦", title: "Bleidis ", span: "Picadas", sub: "Cartagena · Sabor · Tradición",
+        sec1: "Picadas — Base", sec2: "Picadas — Base", sec3: "Picadas — Base",
+        whyTitle: "✨ ¿Por qué elegirnos?",
+        w1: "Sabor Auténtico", w1d: "Recetas tradicionales con sazón costeña.",
+        w2: "Ingredientes Frescos", w2d: "Las mejores carnes y especias diarias.",
+        w3: "Atención Caribeña", w3d: "Servicio cálido para sentirte en familia.",
+        item1_n: "Orejas de la Casa", item1_d: "Orejas de cerdo fritas, crocantes y sazonadas al estilo de la casa.", badge_fav: "⭐ Favorita",
+        item2_n: "Chorizo Santarosano", item2_d: "Chorizo artesanal ahumado. Sabor auténtico de la región.", badge_trad: "🌶️ Tradicional",
+        item3_n: "Chicharrón con Papas", item3_d: "Chicharrón crocante y dorado, con papas hervidas.", badge_pop: "⭐ Popular",
+        item4_n: "Chuleta de Cerdo", item4_d: "Chuleta jugosa asada con hierbas y especias del Caribe.", badge_esp: "🔥 Especial",
+        item5_n: "Pollo Asado", item5_d: "Asado, marinado con limón, ajo y cilantro costeño. Jugoso.",
+        item6_n: "Carne de Res", item6_d: "En trozos, sazonada y asada con el toque especial de la costa.",
+        item7_n: "Carne de Cerdo", item7_d: "Asada, marinada con ajo, comino y especias caribeñas.",
+        item8_n: "Pierna Pernil Asada", item8_d: "Asada lentamente con hierbas. La estrella que se deshace sola.", badge_star: "🏆 Estrella",
+        foot: "Cartagena de Indias · Colombia", taxes: "Precios con IVA · Sujeto a disponibilidad",
+        thanks: "¡Bienvenidos y gracias por su preferencia!", wa: "Pedir por WhatsApp", wa_msg: "¡Hola! Me gustaría hacer un pedido."
+      },
+      en: {
+        promo: "🌴 Caribbean flavor in every bite — Cartagena welcomes you 🌴",
+        tag: "✦ Fast Food Stand ✦", title: "Bleidis ", span: "Picadas", sub: "Cartagena · Flavor · Tradition",
+        sec1: "Picadas — Base", sec2: "Picadas — Base", sec3: "Picadas — Base",
+        whyTitle: "✨ Why choose us?",
+        w1: "Authentic Flavor", w1d: "Traditional recipes with true coastal seasoning.",
+        w2: "Fresh Ingredients", w2d: "The best meats and spices selected daily.",
+        w3: "Caribbean Hospitality", w3d: "Warm service that makes you feel like family.",
+        item1_n: "House Pig Ears", item1_d: "Crispy fried pig ears seasoned house-style. A true delight.", badge_fav: "⭐ Favorite",
+        item2_n: "Santarosano Sausage", item2_d: "Artisan smoked sausage. Authentic regional flavor.", badge_trad: "🌶️ Traditional",
+        item3_n: "Pork Belly & Potatoes", item3_d: "Crispy pork belly served with perfectly boiled potatoes.", badge_pop: "⭐ Popular",
+        item4_n: "Pork Chop", item4_d: "Juicy pork chop grilled with Caribbean herbs and spices.", badge_esp: "🔥 Special",
+        item5_n: "Roasted Chicken", item5_d: "Marinated with lemon, garlic and coastal cilantro. Juicy.",
+        item6_n: "Beef Chunks", item6_d: "Beef chunks, seasoned and grilled with our special coastal touch.",
+        item7_n: "Grilled Pork", item7_d: "Pork marinated in garlic and cumin. Aromatic and tender.",
+        item8_n: "Roasted Pork Leg", item8_d: "Slow-roasted pork leg. The star of the house, falls off the bone.", badge_star: "🏆 Star",
+        foot: "Cartagena de Indias · Colombia", taxes: "Taxes included · Subject to availability",
+        thanks: "Welcome and thank you for choosing us!", wa: "Order via WhatsApp", wa_msg: "Hello! I would like to place an order."
+      },
+      fr: {
+        promo: "🌴 Saveur des Caraïbes — Cartagena vous accueille 🌴",
+        tag: "✦ Stand de Restauration Rapide ✦", title: "Bleidis ", span: "Picadas", sub: "Cartagena · Saveur · Tradition",
+        sec1: "Picadas — Base", sec2: "Picadas — Base", sec3: "Picadas — Base",
+        whyTitle: "✨ Pourquoi nous choisir?",
+        w1: "Saveur Authentique", w1d: "Recettes traditionnelles aux épices côtières.",
+        w2: "Ingrédients Frais", w2d: "Viandes et épices de qualité sélectionnées chaque jour.",
+        w3: "Accueil Caribéen", w3d: "Un service chaleureux, comme en famille.",
+        item1_n: "Oreilles de Porc", item1_d: "Oreilles de porc frites et croustillantes, spécialité maison.", badge_fav: "⭐ Favori",
+        item2_n: "Saucisse Santarosano", item2_d: "Saucisse artisanale fumée. Goût authentique.", badge_trad: "🌶️ Tradition",
+        item3_n: "Poitrine de Porc & Pommes de terre", item3_d: "Poitrine de porc croustillante avec pommes de terre.", badge_pop: "⭐ Populaire",
+        item4_n: "Côtelette de Porc", item4_d: "Côtelette de porc juteuse grillée aux herbes caribéennes.", badge_esp: "🔥 Spécial",
+        item5_n: "Poulet Rôti", item5_d: "Poulet mariné au citron, ail et coriandre de la côte.",
+        item6_n: "Morceaux de Bœuf", item6_d: "Bœuf grillé assaisonné à la perfection caribéenne.",
+        item7_n: "Porc Grillé", item7_d: "Porc mariné à l'ail et au cumin. Tendre et aromatique.",
+        item8_n: "Cuisse de Porc Rôtie", item8_d: "Cuite lentement, la star de la maison qui fond en bouche.", badge_star: "🏆 Star",
+        foot: "Cartagena de Indias · Colombie", taxes: "Taxes incluses · Selon disponibilité",
+        thanks: "Bienvenue et merci de votre confiance!", wa: "Commander sur WhatsApp", wa_msg: "Bonjour! Je voudrais passer une commande."
+      },
+      de: {
+        promo: "🌴 Karibischer Geschmack — Cartagena heißt Sie willkommen 🌴",
+        tag: "✦ Fast Food Stand ✦", title: "Bleidis ", span: "Picadas", sub: "Cartagena · Geschmack · Tradition",
+        sec1: "Picadas — Basis", sec2: "Picadas — Basis", sec3: "Picadas — Basis",
+        whyTitle: "✨ Warum uns wählen?",
+        w1: "Authentischer Geschmack", w1d: "Traditionelle Rezepte mit echter Küstenwürze.",
+        w2: "Frische Zutaten", w2d: "Täglich ausgewählte, hochwertige Fleischsorten und Gewürze.",
+        w3: "Karibische Gastfreundschaft", w3d: "Herzlicher Service, damit Sie sich wie zu Hause fühlen.",
+        item1_n: "Schweineohren nach Art des Hauses", item1_d: "Knusprig gebratene Schweineohren, hausgemacht gewürzt.", badge_fav: "⭐ Favorit",
+        item2_n: "Santarosano Wurst", item2_d: "Geräucherte handwerkliche Wurst. Authentischer Regiongeschmack.", badge_trad: "🌶️ Traditionell",
+        item3_n: "Schweinebauch & Kartoffeln", item3_d: "Knuspriger Schweinebauch mit perfekt gekochten Kartoffeln.", badge_pop: "⭐ Beliebt",
+        item4_n: "Schweinekotelett", item4_d: "Saftiges Schweinekotelett gegrillt mit karibischen Kräutern.", badge_esp: "🔥 Spezial",
+        item5_n: "Brathähnchen", item5_d: "Mariniert mit Zitrone, Knoblauch und Koriander.",
+        item6_n: "Rindfleischhappen", item6_d: "Gewürzte Rindfleischstücke, gegrillt mit unserer Note.",
+        item7_n: "Gegrilltes Schweinefleisch", item7_d: "Schweinefleisch mariniert in Knoblauch und Kreuzkümmel.",
+        item8_n: "Gebratene Schweinekeule", item8_d: "Langsam gebratene Keule. Fällt von selbst vom Knochen.", badge_star: "🏆 Star",
+        foot: "Cartagena de Indias · Kolumbien", taxes: "Inklusive Steuern · Je nach Verfügbarkeit",
+        thanks: "Willkommen und danke für Ihren Besuch!", wa: "Bestellen über WhatsApp", wa_msg: "Hallo! Ich möchte eine Bestellung aufgeben."
+      },
+      it: {
+        promo: "🌴 Sapore caraibico — Cartagena ti dà il benvenuto 🌴",
+        tag: "✦ Chiosco Fast Food ✦", title: "Bleidis ", span: "Picadas", sub: "Cartagena · Sapore · Tradizione",
+        sec1: "Picadas — Base", sec2: "Picadas — Base", sec3: "Picadas — Base",
+        whyTitle: "✨ Perché sceglierci?",
+        w1: "Sapore Autentico", w1d: "Ricette tradizionali con i veri condimenti della costa.",
+        w2: "Ingredienti Freschi", w2d: "Le migliori carni e spezie selezionate ogni giorno.",
+        w3: "Ospitalità Caraibica", w3d: "Un servizio caloroso per farti sentire in famiglia.",
+        item1_n: "Orecchie di Maiale", item1_d: "Orecchie di maiale fritte e croccanti, ricetta della casa.", badge_fav: "⭐ Preferito",
+        item2_n: "Salsiccia Santarosano", item2_d: "Salsiccia affumicata artigianale. Autentico sapore regionale.", badge_trad: "🌶️ Tradizione",
+        item3_n: "Pancetta e Patate", item3_d: "Pancetta croccante accompagnata da patate bollite al punto giusto.", badge_pop: "⭐ Popolare",
+        item4_n: "Braciola di Maiale", item4_d: "Succulenta braciola alla griglia con erbe caraibiche.", badge_esp: "🔥 Speciale",
+        item5_n: "Pollo Arrosto", item5_d: "Pollo marinato con limone, aglio e coriandolo. Succoso.",
+        item6_n: "Pezzi di Manzo", item6_d: "Manzo speziato e grigliato con un tocco della costa.",
+        item7_n: "Maiale Arrosto", item7_d: "Maiale marinato con aglio e cumino. Tenero e aromatico.",
+        item8_n: "Cosciotto di Maiale", item8_d: "Cotto lentamente, la stella della casa, si scioglie in bocca.", badge_star: "🏆 Stella",
+        foot: "Cartagena de Indias · Colombia", taxes: "Tasse incluse · Soggetto a disponibilità",
+        thanks: "Benvenuto e grazie per averci scelto!", wa: "Ordina via WhatsApp", wa_msg: "Ciao! Vorrei fare un ordine."
+      },
+      pt: {
+        promo: "🌴 Sabor caribenho — Cartagena te dá as boas-vindas 🌴",
+        tag: "✦ Barraca de Comida Rápida ✦", title: "Bleidis ", span: "Picadas", sub: "Cartagena · Sabor · Tradição",
+        sec1: "Picadas — Base", sec2: "Picadas — Base", sec3: "Picadas — Base",
+        whyTitle: "✨ Por que nos escolher?",
+        w1: "Sabor Autêntico", w1d: "Receitas tradicionais com o verdadeiro tempero costeiro.",
+        w2: "Ingredientes Frescos", w2d: "As melhores carnes e iguarias selecionadas diariamente.",
+        w3: "Atendimento Caribenho", w3d: "Serviço caloroso que faz você se sentir em casa.",
+        item1_n: "Orelhas da Casa", item1_d: "Orelhas de porco fritas, crocantes e temperadas ao estilo da casa.", badge_fav: "⭐ Favorito",
+        item2_n: "Linguiça Santarosano", item2_d: "Linguiça artesanal defumada. Sabor autêntico da região.", badge_trad: "🌶️ Tradição",
+        item3_n: "Torresmo e Batatas", item3_d: "Torresmo crocante acompanhado de batatas cozidas no ponto.", badge_pop: "⭐ Popular",
+        item4_n: "Costeleta de Porco", item4_d: "Costeleta suculenta assada com ervas caribenhas.", badge_esp: "🔥 Especial",
+        item5_n: "Frango Assado", item5_d: "Frango marinado com limão, alho e coentro da costa.",
+        item6_n: "Pedaços de Carne", item6_d: "Carne bovina temperada e assada com nosso toque especial.",
+        item7_n: "Carne de Porco", item7_d: "Carne de porco assada com alho e cominho. Muito macia.",
+        item8_n: "Pernil de Porco", item8_d: "Assado lentamente, a estrela da casa, desmancha na boca.", badge_star: "🏆 Estrela",
+        foot: "Cartagena de Indias · Colômbia", taxes: "Impostos inclusos · Sujeito a disponibilidade",
+        thanks: "Bem-vindo e obrigado pela sua preferência!", wa: "Pedir pelo WhatsApp", wa_msg: "Olá! Gostaria de fazer um pedido."
+      },
+      zh: {
+        promo: "🌴 加勒比风味 — 卡塔赫纳欢迎您 🌴",
+        tag: "✦ 快餐摊 ✦", title: "Bleidis ", span: "Picadas", sub: "卡塔赫纳 · 味道 · 传统",
+        sec1: "Picadas — 起价", sec2: "Picadas — 起价", sec3: "Picadas — 起价",
+        whyTitle: "✨ 为什么选择我们？",
+        w1: "地道风味", w1d: "采用传统配方和纯正的沿海调味料。",
+        w2: "新鲜食材", w2d: "每天挑选最好的肉类和香料。",
+        w3: "加勒比式热情", w3d: "让您有宾至如归的温馨服务。",
+        item1_n: "招牌猪耳", item1_d: "酥脆的炸猪耳，独家秘制调料，非常美味。", badge_fav: "⭐ 最爱",
+        item2_n: "传统烟熏香肠", item2_d: "手工烟熏香肠。地道的地方风味。", badge_trad: "🌶️ 传统",
+        item3_n: "炸猪肉配土豆", item3_d: "酥脆的炸猪肉肚配上煮得恰到好处的土豆。", badge_pop: "⭐ 热门",
+        item4_n: "秘制猪排", item4_d: "用加勒比香草和香料烤制的多汁猪排。", badge_esp: "🔥 特色",
+        item5_n: "烤鸡", item5_d: "用柠檬、大蒜和香菜腌制的烤鸡，多汁鲜嫩。",
+        item6_n: "烤牛肉块", item6_d: "切块牛肉，经过我们特殊的沿海风味调配后烤制。",
+        item7_n: "烤猪肉", item7_d: "大蒜和孜然腌制的烤猪肉。鲜嫩芳香。",
+        item8_n: "慢烤猪大腿", item8_d: "慢烤而成的猪腿。招牌菜，入口即化。", badge_star: "🏆 招牌",
+        foot: "卡塔赫纳 · 哥伦比亚", taxes: "包含税费 · 视供应情况而定",
+        thanks: "欢迎，感谢您的惠顾！", wa: "通过WhatsApp点餐", wa_msg: "你好！我想点餐。"
+      },
+      ja: {
+        promo: "🌴 カリブ海の風味 — カルタヘナへようこそ 🌴",
+        tag: "✦ ファストフード屋台 ✦", title: "Bleidis ", span: "Picadas", sub: "カルタヘナ · 味 · 伝統",
+        sec1: "Picadas — 基本価格", sec2: "Picadas — 基本価格", sec3: "Picadas — 基本価格",
+        whyTitle: "✨ 当店が選ばれる理由",
+        w1: "本物の味", w1d: "本物の海岸風調味料を使った伝統のレシピ。",
+        w2: "新鮮な材料", w2d: "毎日厳選された最高の肉とスパイス。",
+        w3: "カリブのおもてなし", w3d: "家族のように感じる温かいサービス。",
+        item1_n: "自家製豚耳揚げ", item1_d: "カリカリに揚げた豚耳の自家製スパイス和え。絶品です。", badge_fav: "⭐ お気に入り",
+        item2_n: "伝統のスモークソーセージ", item2_d: "手作りの燻製ソーセージ。本格的な地域の味。", badge_trad: "🌶️ 伝統",
+        item3_n: "豚バラ肉とポテト", item3_d: "カリカリの豚バラ肉と茹でたポテトの定番。", badge_pop: "⭐ 人気",
+        item4_n: "ポークチョップ", item4_d: "カリブのハーブとスパイスで焼いたジューシーなポークチョップ。", badge_esp: "🔥 スペシャル",
+        item5_n: "ローストチキン", item5_d: "レモン、ニンニク、コリアンダーでマリネしたチキン。",
+        item6_n: "グリルビーフ", item6_d: "特製の海岸風スパイスで焼き上げた牛肉の塊。",
+        item7_n: "グリルポーク", item7_d: "ニンニクとクミンでマリネした豚肉。柔らかくて香り豊か。",
+        item8_n: "豚もも肉のロースト", item8_d: "ゆっくりローストした豚もも肉。口の中でとろける看板メニュー。", badge_star: "🏆 スター",
+        foot: "カルタヘナ · コロンビア", taxes: "税込み · 在庫状況により異なります",
+        thanks: "ご来店ありがとうございます！", wa: "WhatsAppで注文", wa_msg: "こんにちは！注文したいのですが。"
+      }
+    };
+
+    // 2. Currencies (Hardcoded approx rates relative to COP)
+    const rates = {
+      COP: 1, USD: 0.00026, EUR:  0.00024, GBP: 0.00020, BRL: 0.0013,
+      MXN: 0.0043, JPY: 0.038, CNY: 0.0018, CAD: 0.00035, ARS: 0.22
+    };
+    const symbols = {
+      COP: '$', USD: '$', EUR: '€', GBP: '£', BRL: 'R$',
+      MXN: '$', JPY: '¥', CNY: '¥', CAD: '$', ARS: '$'
+    };
+
+    let currentLang = 'es';
+    let currentCurr = 'COP';
+
+    // 3. Logic: Update Translations
+    function setLanguage(lang) {
+      if(!i18n[lang]) return;
+      currentLang = lang;
+      
+      // Update select value if needed
+      const langSel = document.getElementById('language-selector');
+      if(langSel.value !== lang) langSel.value = lang;
+
+      // Simple translation replace
+      const tr = i18n[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if(tr[key]) el.textContent = tr[key];
+      });
+
+      // Update WhatsApp URL
+      const waLink = document.getElementById('wa-link');
+      waLink.href = `https://wa.me/573209717479?text=${encodeURIComponent(tr.wa_msg)}`;
+    }
+
+    // 4. Logic: Update Prices
+    function setCurrency(curr) {
+      currentCurr = curr;
+      const rate = rates[curr];
+      const sym = symbols[curr];
+
+      // Update symbols
+      document.querySelectorAll('.curr-sym').forEach(el => el.textContent = sym);
+
+      // Update values
+      document.querySelectorAll('.price-val').forEach(el => {
+        const baseCOP = parseInt(el.getAttribute('data-base'), 10);
+        let converted = baseCOP * rate;
+        
+        let displayStr = '';
+        if (curr === 'COP') {
+          displayStr = converted.toLocaleString('es-CO'); // e.g., 10.000
+        } else if (curr === 'JPY' || curr === 'ARS') {
+          displayStr = converted.toLocaleString(undefined, {maximumFractionDigits: 0});
+        } else {
+          displayStr = converted.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        el.textContent = displayStr;
+      });
+
+      // Update headers for Picadas category based on currency
+      const prices = [10000, 15000, 20000];
+      const secElements = [
+        document.querySelector('[data-i18n="sec1"]'),
+        document.querySelector('[data-i18n="sec2"]'),
+        document.querySelector('[data-i18n="sec3"]')
+      ];
+
+      prices.forEach((baseCOP, index) => {
+        let converted = baseCOP * rate;
+        let displayStr = '';
+        if (curr === 'COP') displayStr = converted.toLocaleString('es-CO');
+        else if (curr === 'JPY' || curr === 'ARS') displayStr = converted.toLocaleString(undefined, {maximumFractionDigits: 0});
+        else displayStr = converted.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        const prefixText = i18n[currentLang][`sec${index+1}`];
+        if(secElements[index]) {
+            secElements[index].textContent = `${prefixText} ${sym}${displayStr} ${curr}`;
+        }
+      });
+    }
+
+    // Events Listeners
+    document.getElementById('language-selector').addEventListener('change', (e) => {
+      setLanguage(e.target.value);
+      setCurrency(currentCurr);
+    });
+
+    document.getElementById('currency-selector').addEventListener('change', (e) => {
+      setCurrency(e.target.value);
+    });
+
+    // Intersection Observer for scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.scroll-anim').forEach(el => observer.observe(el));
+
+    // Initial Execution
+    setLanguage('es');
+    setCurrency('COP');
+
+  </script>
+</body>
+</html>
