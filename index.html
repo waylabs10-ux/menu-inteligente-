@@ -439,6 +439,24 @@
       .card { min-height: auto; }
       .card-footer { flex-direction: row; align-items: center; justify-content: space-between; }
     }
+
+    /* Footer Styles */
+    .main-footer {
+      grid-column: 1 / -1;
+      padding: 30px 20px;
+      text-align: center;
+      background: rgba(27, 42, 74, 0.05);
+      border-top: 1px solid rgba(255, 215, 0, 0.1);
+      margin-top: 20px;
+    }
+    .footer-content p {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--navy);
+      opacity: 0.6;
+    }
   </style>
 </head>
 <body>
@@ -622,6 +640,13 @@
       </div>
     </div>
   </main>
+  
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <p>By Waylabs · Ricardo Torres | Derechos Reservados</p>
+    </div>
+  </footer>
 </div>
 
   <!-- WhatsApp Button -->
